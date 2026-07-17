@@ -1,0 +1,735 @@
+{
+  "info": {
+    "_postman_id": "grupo7-ecommerce-api-rails",
+    "name": "E-Commerce API — Grupo 7 (Ruby on Rails)",
+    "description": "Colección de Postman para el API RESTful de E-commerce.\n\nGrupo 7: Estéfano Condoy, Eddy Sangucho, César Zapata\n\nStack: Ruby on Rails 7.1, PostgreSQL, JWT, BCrypt\n\n## Instrucciones\n1. Ejecutar 'Register User' para crear un usuario\n2. Ejecutar 'Login User' — el token JWT se guarda automáticamente\n3. Los demás endpoints usan el token guardado automáticamente",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Users",
+      "description": "Gestión de usuarios y autenticación",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"first_name\": \"Juan\",\n    \"last_name\": \"Pérez\",\n    \"email\": \"juan@example.com\",\n    \"password\": \"password123\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/register",
+              "host": ["{{base_url}}"],
+              "path": ["users", "register"]
+            },
+            "description": "Registra un nuevo usuario. La contraseña se cifra con BCrypt."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.token) {",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "    console.log('✅ Token JWT guardado automáticamente');",
+                  "    pm.test('Login exitoso - Token recibido', function() {",
+                  "        pm.expect(jsonData.data.token).to.be.a('string');",
+                  "    });",
+                  "} else {",
+                  "    console.log('❌ No se pudo obtener el token');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Autentica al usuario y retorna un JWT. El token se guarda automáticamente en la variable de colección."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Respuesta exitosa', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('No expone password', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.not.have.property('password');",
+                  "    pm.expect(jsonData.data).to.not.have.property('password_digest');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            },
+            "description": "Obtiene un usuario por su ID. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user\": {\n    \"first_name\": \"Juan Carlos\",\n    \"last_name\": \"Pérez López\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/1",
+              "host": ["{{base_url}}"],
+              "path": ["users", "1"]
+            },
+            "description": "Actualiza los datos de un usuario. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/4",
+              "host": ["{{base_url}}"],
+              "path": ["users", "4"]
+            },
+            "description": "Elimina un usuario por su ID. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Credenciales Inválidas (Error Test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna 401 Unauthorized', function() {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "pm.test('Respuesta de error estandarizada', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData.error).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/login",
+              "host": ["{{base_url}}"],
+              "path": ["users", "login"]
+            },
+            "description": "Test de credenciales inválidas — debe retornar 401."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "description": "Gestión del catálogo de productos",
+      "item": [
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Producto creado - Status 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Retorna datos del producto', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.name).to.eql('Laptop Gaming');",
+                  "    pm.expect(jsonData.data.price).to.eql(1299.99);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"name\": \"Laptop Gaming\",\n    \"description\": \"Laptop de alta gama para gaming con RTX 4090\",\n    \"price\": 1299.99,\n    \"stock\": 15\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            },
+            "description": "Crea un nuevo producto. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Lista de productos - Status 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Incluye metadatos de paginación', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.meta).to.have.property('currentPage');",
+                  "    pm.expect(jsonData.meta).to.have.property('totalPages');",
+                  "    pm.expect(jsonData.meta).to.have.property('totalCount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?page=1&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "per_page", "value": "10" }
+              ]
+            },
+            "description": "Lista todos los productos con paginación. No requiere autenticación."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Products by Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Búsqueda exitosa', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products?name=laptop",
+              "host": ["{{base_url}}"],
+              "path": ["products"],
+              "query": [
+                { "key": "name", "value": "laptop" }
+              ]
+            },
+            "description": "Busca productos por nombre (búsqueda parcial case-insensitive)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            },
+            "description": "Obtiene un producto por su ID. No requiere autenticación."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"price\": 1199.99,\n    \"stock\": 20\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            },
+            "description": "Actualiza un producto existente. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/products/1",
+              "host": ["{{base_url}}"],
+              "path": ["products", "1"]
+            },
+            "description": "Elimina un producto. Requiere autenticación JWT."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - Sin Auth (Error Test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna 401 sin autenticación', function() {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"name\": \"Test Product\",\n    \"price\": 99.99,\n    \"stock\": 5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            },
+            "description": "Test: intenta crear un producto sin JWT — debe retornar 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Product - Validación (Error Test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna 422 por validación', function() {",
+                  "    pm.response.to.have.status(422);",
+                  "});",
+                  "pm.test('Mensaje de error claro', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product\": {\n    \"name\": \"\",\n    \"price\": -10,\n    \"stock\": -5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            },
+            "description": "Test: datos inválidos — debe retornar 422 con mensajes de error."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Receipts",
+      "description": "Gestión de recibos y órdenes de compra",
+      "item": [
+        {
+          "name": "Create Receipt",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Recibo creado - Status 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('Total calculado por el backend', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.total).to.be.a('number');",
+                  "    pm.expect(jsonData.data.total).to.be.above(0);",
+                  "});",
+                  "pm.test('Incluye items con subtotales', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data.items).to.be.an('array');",
+                  "    pm.expect(jsonData.data.items.length).to.be.above(0);",
+                  "    jsonData.data.items.forEach(function(item) {",
+                  "        pm.expect(item).to.have.property('unitPrice');",
+                  "        pm.expect(item).to.have.property('subtotal');",
+                  "        pm.expect(item).to.have.property('quantity');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receipt\": {\n    \"user_id\": 1,\n    \"items\": [\n      { \"product_id\": 1, \"quantity\": 2 },\n      { \"product_id\": 2, \"quantity\": 1 }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/receipts",
+              "host": ["{{base_url}}"],
+              "path": ["receipts"]
+            },
+            "description": "Crea un recibo. El backend calcula precios, subtotales y total automáticamente, y descuenta el stock."
+          },
+          "response": []
+        },
+        {
+          "name": "List All Receipts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/receipts",
+              "host": ["{{base_url}}"],
+              "path": ["receipts"]
+            },
+            "description": "Lista todos los recibos con sus items y datos del usuario."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Receipt by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/receipts/1",
+              "host": ["{{base_url}}"],
+              "path": ["receipts", "1"]
+            },
+            "description": "Obtiene un recibo específico con todos sus items."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Receipts by User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/receipts/user/1",
+              "host": ["{{base_url}}"],
+              "path": ["receipts", "user", "1"]
+            },
+            "description": "Lista todos los recibos de un usuario específico."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Receipt",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/receipts/1",
+              "host": ["{{base_url}}"],
+              "path": ["receipts", "1"]
+            },
+            "description": "Elimina un recibo por su ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Receipt - Stock Insuficiente (Error Test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna 409 Conflict por stock insuficiente', function() {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "pm.test('Mensaje de error incluye detalles de stock', function() {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.false;",
+                  "    pm.expect(jsonData.error).to.eql('Conflicto');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receipt\": {\n    \"user_id\": 1,\n    \"items\": [\n      { \"product_id\": 1, \"quantity\": 99999 }\n    ]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/receipts",
+              "host": ["{{base_url}}"],
+              "path": ["receipts"]
+            },
+            "description": "Test: cantidad mayor al stock disponible — debe retornar 409 Conflict."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Receipt - Sin Items (Error Test)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Retorna error por recibo sin items', function() {",
+                  "    var status = pm.response.code;",
+                  "    pm.expect([400, 422]).to.include(status);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"receipt\": {\n    \"user_id\": 1,\n    \"items\": []\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/receipts",
+              "host": ["{{base_url}}"],
+              "path": ["receipts"]
+            },
+            "description": "Test: recibo sin items — debe retornar error de validación."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('API activa', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["health"]
+            },
+            "description": "Verifica que la API esté activa."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
