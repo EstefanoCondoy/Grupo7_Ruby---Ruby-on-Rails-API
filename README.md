@@ -1,8 +1,8 @@
-# 🛒 E-Commerce API — Grupo 7
+#  E-Commerce API — Grupo 7
 
 **API RESTful de E-commerce** construida con **Ruby on Rails 7.1** (API mode)
 
-## 👥 Integrantes
+##  Integrantes
 
 | Nombre | Rol |
 |---|---|
@@ -10,7 +10,7 @@
 | Eddy Sangucho | Desarrollo Backend |
 | César Zapata | Desarrollo Backend |
 
-## 🏗️ Arquitectura
+##  Arquitectura
 
 El proyecto implementa una **arquitectura por capas** siguiendo las convenciones de Rails:
 
@@ -49,7 +49,7 @@ graph TD
 | RSpec | 6.0 | Testing |
 | Docker | - | Contenedorización |
 
-## 📦 Entidades
+##  Entidades
 
 ### User
 - `id`, `first_name`, `last_name`, `email`, `password_digest`
@@ -70,7 +70,7 @@ graph TD
 - `unit_price` se toma del precio actual del producto
 - `subtotal` = `unit_price × quantity`
 
-## 🔑 Reglas de Negocio
+##  Reglas de Negocio
 
 1. **Total calculado en backend**: El cliente envía `user_id` e `items [{product_id, quantity}]`. El backend calcula precios y total.
 2. **Validación de stock**: Se verifica stock antes de crear el recibo.
@@ -80,7 +80,7 @@ graph TD
 6. **Precisión monetaria**: `decimal(10,2)` para todos los montos.
 7. **Errores centralizados**: Respuestas JSON consistentes con `ExceptionHandler`.
 
-## 📋 Endpoints
+##  Endpoints
 
 ### Users
 | Método | Ruta | Descripción | Auth |
@@ -109,7 +109,7 @@ graph TD
 | `GET` | `/api/v1/receipts/user/:user_id` | Recibos por usuario | ✅ |
 | `DELETE` | `/api/v1/receipts/:id` | Eliminar recibo | ✅ |
 
-## 🚀 Ejecución
+##  Ejecución
 
 ### Opción 1: Docker (Recomendado)
 
@@ -150,7 +150,7 @@ rails server
 # La API estará en http://localhost:3000
 ```
 
-## 🔐 Autenticación JWT
+##  Autenticación JWT
 
 El sistema usa JSON Web Tokens para la autenticación:
 
@@ -160,7 +160,7 @@ El sistema usa JSON Web Tokens para la autenticación:
 
 Los tokens expiran después de 24 horas (configurable con `JWT_EXPIRATION_HOURS`).
 
-## 🔒 Variables de Entorno
+##  Variables de Entorno
 
 | Variable | Descripción | Default |
 |---|---|---|
@@ -172,7 +172,7 @@ Los tokens expiran después de 24 horas (configurable con `JWT_EXPIRATION_HOURS`
 | `JWT_EXPIRATION_HOURS` | Horas de expiración del token | `24` |
 | `RAILS_ENV` | Entorno de Rails | `development` |
 
-## 📝 Ejemplos de Uso
+##  Ejemplos de Uso
 
 ### Registrar usuario
 ```bash
@@ -306,13 +306,13 @@ curl -X POST http://localhost:3000/api/v1/receipts \
 }
 ```
 
-## 📊 Documentación API
+##  Documentación API
 
 - **Swagger UI**: `http://localhost:3000/api-docs`
 - **OpenAPI YAML**: `swagger/v1/swagger.yaml`
 - **Postman Collection**: `docs/postman_collection.json` (importar en Postman)
 
-## 🧪 Tests
+##  Tests
 
 ```bash
 # Ejecutar todos los tests
@@ -328,7 +328,7 @@ bundle exec rspec spec/requests
 bundle exec rspec spec/models/user_spec.rb
 ```
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 Grupo7/
@@ -378,7 +378,7 @@ Grupo7/
 └── README.md
 ```
 
-## ⚡ Valor Agregado
+##  Valor Agregado
 
 | Feature | Descripción |
 |---|---|
@@ -391,6 +391,6 @@ Grupo7/
 | 🧪 RSpec | Tests de modelos y requests |
 | 🔒 JWT | Autenticación stateless con tokens |
 
-## ⚖️ Licencia
+##  Licencia
 
 Proyecto académico — Escuela Politécnica Nacional 2026
